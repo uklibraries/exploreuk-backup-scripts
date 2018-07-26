@@ -1,0 +1,19 @@
+#!/bin/bash
+# euk-backup-omeuka - back up site, config, and database for ExploreUK
+#
+# Recommended configuration:
+# 16 * * * * /tmpdir/bin/euk-backup-omeuka
+
+user=deploy
+host=solrindex.uky.edu
+
+base="/opt/shares/library_mips_1/exploreuk"
+year=$(date +%Y)
+month=$(date +%m)
+day=$(date +%d)
+hour=$(date +%H)
+
+omeukadir="$base/backups/omeuka/$year/$month/$day/$hour"
+mkdir -p "$omeukadir"
+ssh "$user@$host" "/home/$user/bin/euk-backup-omeuka-local"
+rsync -a "$user@$host:backups/" "$omeukadir"

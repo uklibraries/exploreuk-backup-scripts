@@ -1,0 +1,23 @@
+#!/bin/bash
+BIN=/home/deploy/bin
+DIR=/home/deploy/backups
+WWW=/var/www/solrindex.uky.edu
+VH=/etc/nginx/sites-available
+
+# clear old backups
+rm -rf "$DIR"
+mkdir "$DIR"
+
+# database
+perl "$BIN/euk-backup-mysql-local"
+
+# application
+save=$(pwd)
+cd "$WWW"
+tar hcf "$DIR/omeuka.tar" "omeka"
+cd "$save"
+
+# vhost config
+for conf in $VH/*.conf; do
+    cp "$conf" "$DIR"
+done

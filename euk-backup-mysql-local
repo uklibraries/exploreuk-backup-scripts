@@ -1,0 +1,37 @@
+#!/usr/bin/env perl
+use Config::IniFiles;
+use Expect;
+
+my $dir = $ENV{'HOME'};
+
+my $cfg = Config::IniFiles->new( -file => "$dir/src/site/db.ini" );
+my (
+    $username,
+    $dbname,
+    $password,
+    $destdir,
+    $destination,
+    $command,
+    $i,
+);
+
+($username = $cfg->val( 'database', 'username' )) =~ s/'//g;
+($dbname = $cfg->val( 'database', 'dbname' )) =~ s/'//g;
+($password = $cfg->val( 'database', 'password' )) =~ s/'//g;
+
+$destdir = "$dir/backups";
+unless (-e $destdir) {
+    mkdir $destdir;
+}
+$destination = "$destdir/omeuka.sql";
+
+$command = "mysqldump --routines --triggers --single-transaction -u $username -p $dbname --result-file=$destination";
+my $exp = Expect->spawn($command) or die "Cannot spawn $command: $!";
+$exp->log_stdout(0);
+
+unless ($exp->expect(5, -re => '[Pp]assword')) {
+    $exp->hard_close();
+    exit(1);
+}
+$exp->send("$password\n");
+$exp->soft_close();

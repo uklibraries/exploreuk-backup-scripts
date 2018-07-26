@@ -1,0 +1,17 @@
+#!/bin/bash
+# euk-backup - prepare nightly backups of ExploreUK
+#
+# Recommended configuration:
+# 45 23 * * * /tmpdir/bin/euk-backup-solr
+
+user=solruser
+host=solrindex.uky.edu
+
+base="/opt/shares/library_mips_1/exploreuk"
+year=$(date +%Y)
+month=$(date +%m)
+day=$(date +%d)
+
+solrdir="$base/backups/solr/$year/$month/$day"
+mkdir -p "$solrdir"
+rsync -a "$user@$host:exploreuk-jetty" "$solrdir"
